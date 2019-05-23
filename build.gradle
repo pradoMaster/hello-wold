@@ -1,5 +1,28 @@
-apply plugin: 'war'
- 
-repositories {
-   mavenCentral()
+task copyReport(type: Copy) {
+    from file("/home/pedja/dev/gradle-practice/swagger-specs/swagger.json")
+    into file("src/specs")
 }
+
+
+
+task packageDistribution(type: Zip) {
+    archiveFileName = "hello-world.war"
+    destinationDirectory = file("$buildDir/dist")
+
+    from "src"
+}
+
+task copyDeploy(type: Copy) {
+    from file("$buildDir/dist/hello-world.war")
+    into file("/home/pedja/dev/gradle-practice/deploy")
+}
+
+task copyWar {
+    dependsOn 'copyReport'
+    dependsOn 'packageDistribution'
+    dependsOn 'copyDeploy'
+    tasks.findByName('packageDistribution').mustRunAfter 'copyReport'
+    tasks.findByName('copyDeploy').mustRunAfter 'packageDistribution'
+}
+
+
